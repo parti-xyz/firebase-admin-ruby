@@ -1,14 +1,17 @@
 require 'firebase/response'
 require 'firebase/server_value'
+require 'firebase/service_account'
+require 'firebase/token_generator'
+
 require 'httpclient'
 require 'json'
 require 'uri'
 
 module Firebase
   class Client
-    attr_reader :auth, :request
+    attr_accessor :access_token, :request
 
-    def initialize(base_uri, auth=nil)
+    def initialize(base_uri, access_token)
       if base_uri !~ URI::regexp(%w(https))
         raise ArgumentError.new('base_uri must be a valid https uri')
       end
@@ -19,7 +22,7 @@ module Firebase
           'Content-Type' => 'application/json'
         }
       })
-      @auth = auth
+      @access_token = access_token
     end
 
     # Writes and returns the data
@@ -50,12 +53,20 @@ module Firebase
       process :patch, path, data, query
     end
 
+    def access_token(service_account)
+      Firebase::TokenGenerator.new(service_account).request_access_token
+    end
+
+    def custom_token(service_account)
+      Firebase::TokenGenerator.new(service_account).request_access_token
+    end
+
     private
 
     def process(verb, path, data=nil, query={})
       Firebase::Response.new @request.request(verb, "#{path}.json", {
         :body             => (data && data.to_json),
-        :query            => (@auth ? { :auth => @auth }.merge(query) : query),
+        :query            => { :access_token => @access_token }.merge(query),
         :follow_redirect  => true
       })
     end

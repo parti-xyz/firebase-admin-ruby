@@ -6,7 +6,7 @@
 
 Gem::Specification.new do |s|
   s.name = "firebase"
-  s.version = "0.2.6"
+  s.version = "0.2.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.require_paths = ["lib"]
@@ -34,6 +34,8 @@ Gem::Specification.new do |s|
     "lib/firebase.rb",
     "lib/firebase/response.rb",
     "lib/firebase/server_value.rb",
+    "lib/firebase/service_account.rb",
+    "lib/firebase/token_generator.rb",
     "spec/firebase_spec.rb",
     "spec/spec_helper.rb"
   ]
