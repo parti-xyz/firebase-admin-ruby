@@ -24,8 +24,7 @@ module Firebase
       })
 
       service_account_content = JSON.parse(File.read(service_account_file_path))
-      service_account = Firebase::ServiceAccount.new(service_account_content)
-      @access_token = access_token(service_account)
+      @service_account = Firebase::ServiceAccount.new(service_account_content)
     end
 
     # Writes and returns the data
@@ -56,12 +55,12 @@ module Firebase
       process :patch, path, data, query
     end
 
-    def access_token(service_account)
-      Firebase::TokenGenerator.new(service_account).request_access_token
+    def custom_token(uid, claims={})
+      Firebase::TokenGenerator.new(@service_account).request_custom_token(uid, claims)
     end
 
-    def custom_token(service_account)
-      Firebase::TokenGenerator.new(service_account).request_access_token
+    def access_token
+      @access_token ||= Firebase::TokenGenerator.new(@service_account).request_access_token
     end
 
     private

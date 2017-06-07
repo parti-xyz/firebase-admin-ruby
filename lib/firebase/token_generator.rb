@@ -6,8 +6,8 @@ module Firebase
       @service_account = service_account
     end
 
-    def request_custom_token
-      generate_custom_token
+    def request_custom_token(uid, claims)
+      generate_custom_token(uid, claims)
     end
 
     def request_access_token
@@ -16,8 +16,25 @@ module Firebase
 
     private
 
-    def generate_custom_token
-      "todo"
+    def generate_custom_token(uid, claims)
+      payload = custom_token_payload(uid, claims)
+      private_key = OpenSSL::PKey::RSA.new(@service_account.private_key)
+      JWT.encode(payload, private_key, "RS256")
+    end
+
+    # https://firebase.google.com/docs/auth/admin/create-custom-tokens?hl=ko
+    def custom_token_payload(uid, claims)
+      service_account_email = @service_account.client_email
+      now_seconds = Time.now.to_i
+      {
+        :iss => service_account_email,
+        :sub => service_account_email,
+        :aud => "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit",
+        :iat => now_seconds,
+        :exp => now_seconds + 1.hour.to_i, # Maximum expiration time is one hour
+        :uid => uid,
+        :claims => claims
+      }
     end
 
     # The tokens generated here are the ones we can use from the server to talk to firebase
