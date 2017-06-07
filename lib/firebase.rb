@@ -11,7 +11,7 @@ module Firebase
   class Client
     attr_accessor :access_token, :request
 
-    def initialize(base_uri, access_token)
+    def initialize(base_uri, service_account_file_path)
       if base_uri !~ URI::regexp(%w(https))
         raise ArgumentError.new('base_uri must be a valid https uri')
       end
@@ -22,7 +22,10 @@ module Firebase
           'Content-Type' => 'application/json'
         }
       })
-      @access_token = access_token
+
+      service_account_content = JSON.parse(File.read(service_account_file_path))
+      service_account = Firebase::ServiceAccount.new(service_account_content)
+      @access_token = access_token(service_account)
     end
 
     # Writes and returns the data
