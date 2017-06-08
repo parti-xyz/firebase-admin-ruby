@@ -13,5 +13,9 @@ module Firebase
     def client_email
       @service_account["client_email"]
     end
+
+    def token_uri
+      @service_account["token_uri"]
+    end
   end
 end

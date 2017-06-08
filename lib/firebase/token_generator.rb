@@ -45,19 +45,20 @@ module Firebase
       private_key = OpenSSL::PKey::RSA.new(@service_account.private_key)
       request_token = JWT.encode(payload, private_key, "RS256")
 
-      response = RestClient.post "https://www.googleapis.com/oauth2/v4/token", { :grant_type => "urn:ietf:params:oauth:grant-type:jwt-bearer", :assertion => request_token}
+      response = RestClient.post @service_account.token_uri, { :grant_type => "urn:ietf:params:oauth:grant-type:jwt-bearer", :assertion => request_token }
       JSON.parse(response)['access_token']
     end
 
     def access_token_payload
       service_account_email = @service_account.client_email
+      token_uri = @service_account.token_uri
       now_seconds = Time.now.to_i
       {
         :iss => service_account_email,
+        :aud => token_uri,
         :scope => "https://www.googleapis.com/auth/firebase.database https://www.googleapis.com/auth/userinfo.email",
         :iat => now_seconds,
         :exp => now_seconds + 1.hour.to_i, # Maximum expiration time is one hour
-        :aud => "https://www.googleapis.com/oauth2/v4/token"
       }
     end
   end

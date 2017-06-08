@@ -68,7 +68,7 @@ module Firebase
     def process(verb, path, data=nil, query={})
       Firebase::Response.new @request.request(verb, "#{path}.json", {
         :body             => (data && data.to_json),
-        :query            => { :access_token => @access_token }.merge(query),
+        :query            => { :access_token => access_token }.merge(query),
         :follow_redirect  => true
       })
     end
